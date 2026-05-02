@@ -856,6 +856,24 @@ function filterMatches(filter, el) {
 renderMatches();
 renderSharp();
 renderCappers();
+
+// ===== LIVE API FETCH =====
+fetch('/.netlify/functions/update')
+  .then(r => r.json())
+  .then(data => {
+    if (data.picks && data.picks.length > 0) {
+      MATCHES.length = 0;
+      data.picks.forEach(p => MATCHES.push(p));
+      renderMatches();
+      renderSharp();
+    }
+    if (data.cappers && data.cappers.length > 0) {
+      CAPPERS.length = 0;
+      data.cappers.forEach(c => CAPPERS.push(c));
+      renderCappers();
+    }
+  })
+  .catch(e => console.log('API fetch failed, using defaults', e));
 </script>
 </body>
 </html>
