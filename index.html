@@ -38,6 +38,7 @@ a{color:inherit;text-decoration:none}
 .tag{padding:2px 8px;border-radius:20px;border:1px solid var(--bor);background:var(--sur2)}
 .surface-clay{background:#3d2010;color:#e08040}
 .surface-hard{background:#102040;color:#4f98a3}
+.surface-grass{background:#0f2d10;color:#6daa45}
 .match-header{display:grid;grid-template-columns:1fr auto 1fr auto;align-items:center;gap:16px;padding:16px 20px;cursor:pointer}
 .player-name{font-size:15px;font-weight:700}
 .player-rank{font-size:11px;color:var(--mut)}
@@ -80,7 +81,7 @@ a{color:inherit;text-decoration:none}
 .form-input,.form-select{padding:8px 12px;border-radius:6px;border:1px solid var(--bor);background:var(--sur2);color:var(--txt);font-size:14px;font-family:inherit;outline:none}
 .form-input:focus,.form-select:focus{border-color:var(--pri)}
 .btn-add{padding:8px 20px;border-radius:6px;background:var(--pri);color:#fff;font-size:14px;font-weight:600;white-space:nowrap;border:none;cursor:pointer}
-.tbl-wrap{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);overflow:hidden}
+.tbl-wrap{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);overflow:hidden;margin-bottom:24px}
 .tbl th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);background:var(--sur2);border-bottom:1px solid var(--bor)}
 .tbl td{padding:10px 12px;border-bottom:1px solid var(--bor);font-size:12px}
 .tbl tr:last-child td{border-bottom:none}
@@ -95,142 +96,44 @@ a{color:inherit;text-decoration:none}
 .summary-label{font-size:11px;color:var(--mut);font-weight:500}
 .summary-val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
 .sdiv{width:1px;height:32px;background:var(--bor);flex-shrink:0}
-.loading{text-align:center;padding:60px;color:var(--mut)}
-.capper-picks-list{margin-top:12px}
-.capper-pick-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px}
-.capper-pick-row:last-child{border-bottom:none}
-.opinion-box{font-size:11px;color:var(--mut);font-style:italic;margin-top:4px;line-height:1.4}
-@media(max-width:768px){.match-body.open{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.match-header{grid-template-columns:1fr auto 1fr}.match-actions{display:none}}
+.wl-section{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:20px;margin-bottom:24px}
+.wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:12px}
+.wl-card{background:var(--sur2);border:1px solid var(--bor);border-radius:var(--rad);padding:14px;text-align:center}
+.wl-val{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:2px}
+.wl-lbl{font-size:11px;color:var(--mut);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.bet-row-logged{background:var(--okb)!important}
+.bet-row-loss{background:var(--erb)!important}
+.streak-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.streak-w{background:var(--okb);color:var(--ok)}
+.streak-l{background:var(--erb);color:var(--er)}
+@media(max-width:768px){.match-body.open{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.match-header{grid-template-columns:1fr auto 1fr}.match-actions{display:none}.wl-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
-<div class="app">
-<header class="topbar">
+
+<div class="topbar">
   <div class="logo">Tennis<span>Edge</span></div>
-  <span style="font-size:12px;color:var(--mut)" id="date-badge">May 2, 2026</span>
-</header>
-<nav class="nav-tabs">
+  <div style="font-size:12px;color:var(--mut)" id="date-display"></div>
+</div>
+
+<div class="nav-tabs">
   <button class="tab-btn active" onclick="switchTab('picks')">🎾 Today's Picks</button>
   <button class="tab-btn" onclick="switchTab('sharp')">📊 Sharp Money</button>
   <button class="tab-btn" onclick="switchTab('cappers')">📈 Cappers</button>
-  <button class="tab-btn" onclick="switchTab('tracker')">📋 My Bets</button>
-</nav>
+  <button class="tab-btn" onclick="switchTab('bets')">📋 My Bets</button>
+</div>
 
 <!-- PICKS TAB -->
-<div id="tab-picks" class="tab-panel active">
+<div class="tab-panel active" id="tab-picks">
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Today's Picks</div><div class="stat-value green" id="st-picks">—</div></div>
-    <div class="stat-card"><div class="stat-label">High Conf.</div><div class="stat-value green" id="st-high">—</div></div>
-    <div class="stat-card"><div class="stat-label">Injuries Flagged</div><div class="stat-value red" id="st-inj">—</div></div>
-    <div class="stat-card"><div class="stat-label">Sharp Signals</div><div class="stat-value gold" id="st-sharp">—</div></div>
+    <div class="stat-card"><div class="stat-label">Today's Picks</div><div class="stat-value" id="s-picks">—</div></div>
+    <div class="stat-card"><div class="stat-label">High Conf.</div><div class="stat-value green" id="s-high">—</div></div>
+    <div class="stat-card"><div class="stat-label">Injuries Flagged</div><div class="stat-value red" id="s-inj">—</div></div>
+    <div class="stat-card"><div class="stat-label">Sharp Signals</div><div class="stat-value gold" id="s-sharp">—</div></div>
   </div>
-  <div class="filters">
-    <button class="filter-btn active" onclick="filterM('all',this)">All</button>
-    <button class="filter-btn" onclick="filterM('ATP',this)">ATP</button>
-    <button class="filter-btn" onclick="filterM('WTA',this)">WTA</button>
-    <button class="filter-btn" onclick="filterM('high',this)">High Conf.</button>
-    <button class="filter-btn" onclick="filterM('clay',this)">Clay</button>
-    <button class="filter-btn" onclick="filterM('hard',this)">Hard</button>
-  </div>
-  <div class="matches-grid" id="matches-grid">
-    <div class="loading">Loading picks...</div>
-  </div>
-</div>
-
-<!-- SHARP TAB -->
-<div id="tab-sharp" class="tab-panel">
-  <div class="section-title"><span class="dot"></span>Sharp Money Tracker</div>
-  <div class="matches-grid" id="sharp-grid">
-    <div class="loading">Loading...</div>
-  </div>
-</div>
-
-<!-- CAPPERS TAB -->
-<div id="tab-cappers" class="tab-panel">
-  <div class="section-title"><span class="dot"></span>Capper Tracker</div>
-  <div class="tbl-wrap" style="margin-bottom:24px">
-    <table class="tbl"><thead><tr><th>Capper</th><th>Record</th><th>Win%</th><th>ROI</th><th>Streak</th><th>Grade</th></tr></thead>
-    <tbody id="capper-leaderboard"></tbody></table>
-  </div>
-  <div id="capper-picks-detail"></div>
-  <div style="margin-top:24px">
-    <div class="section-title"><span class="dot"></span>Add Capper Pick</div>
-    <div class="tracker-form">
-      <div class="form-grid">
-        <div class="form-field">abel class="form-label">Capper Name</label><input class="form-input" id="cp-name" placeholder="e.g. SharpBallBets"></div>
-        <div class="form-field">abel class="form-label">Pick</label><input class="form-input" id="cp-pick" placeholder="e.g. Arnaldi ML"></div>
-        <div class="form-field">abel class="form-label">Odds</label><input class="form-input" id="cp-odds" placeholder="-155"></div>
-        <div class="form-field">abel class="form-label">Units</label><input class="form-input" id="cp-units" type="number" placeholder="1" min="0.5" step="0.5"></div>
-        <button class="btn-add" onclick="addCapperPick()">+ Add</button>
-      </div>
-      <div class="form-field" style="margin-top:12px">abel class="form-label">Your Opinion</label><input class="form-input" id="cp-opinion" placeholder="e.g. Agree — sharp money aligns, good value"></div>
-    </div>
-    <div class="tbl-wrap">
-      <table class="tbl"><thead><tr><th>#</th><th>Capper</th><th>Pick</th><th>Odds</th><th>Units</th><th>Opinion</th><th>Result</th><th>P&L</th></tr></thead>
-      <tbody id="capper-picks-body"></tbody></table>
-    </div>
-  </div>
-</div>
-
-<!-- MY BETS TAB -->
-<div id="tab-tracker" class="tab-panel">
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Total Logged</div><div class="stat-value" id="ms-total">0</div></div>
-    <div class="stat-card"><div class="stat-label">Wins</div><div class="stat-value green" id="ms-wins">0</div></div>
-    <div class="stat-card"><div class="stat-label">Losses</div><div class="stat-value red" id="ms-losses">0</div></div>
-    <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value gold" id="ms-pct">—</div></div>
-    <div class="stat-card"><div class="stat-label">Units P&L</div><div class="stat-value" id="ms-pnl">0</div></div>
-  </div>
-  <div class="tracker-form">
-    <div class="section-title"><span class="dot"></span>Log a Bet</div>
-    <div class="form-grid">
-      <div class="form-field">abel class="form-label">Pick / Match</label><input class="form-input" id="bet-pick" placeholder="e.g. Arnaldi ML"></div>
-      <div class="form-field">abel class="form-label">Odds</label><input class="form-input" id="bet-odds" placeholder="-155"></div>
-      <div class="form-field">abel class="form-label">Units</label><input class="form-input" id="bet-units" type="number" placeholder="1" min="0.5" step="0.5"></div>
-      <div class="form-field">abel class="form-label">Confidence</label>
-        <select class="form-select" id="bet-conf"><option>High</option><option>Medium</option><option>Lean</option></select>
-      </div>
-      <button class="btn-add" onclick="addBet()">Log</button>
-    </div>
-  </div>
-  <div class="tbl-wrap" id="bets-wrap">
-    <div class="empty" id="bets-empty"><h3>No bets logged yet</h3><p>Log your bets above to start tracking.</p></div>
-    <table class="tbl" id="bets-table" style="display:none">
-      <thead><tr><th>#</th><th>Pick</th><th>Odds</th><th>Units</th><th>Conf.</th><th>Result</th><th>P&L</th></tr></thead>
-      <tbody id="bets-body"></tbody>
-    </table>
-  </div>
-</div>
-
-<div class="summary-bar">
-  <div class="summary-item"><div class="summary-label">Best Pick</div><div class="summary-val" id="sb-best">—</div></div>
-  <div class="sdiv"></div>
-  <div class="summary-item"><div class="summary-label">Confidence</div><div class="summary-val green" id="sb-conf">—</div></div>
-  <div class="sdiv"></div>
-  <div class="summary-item"><div class="summary-label">My Bets P&L</div><div class="summary-val" id="sb-pnl">0u</div></div>
-  <div class="sdiv"></div>
-  <div class="summary-item"><div class="summary-label">W / L</div><div class="summary-val" id="sb-wl">0-0</div></div>
-</div>
-</div>
-
-<script>
-let MATCHES = [];
-let myBets = [];
-let capperPicks = [];
-let betId = 0;
-let cpId = 0;
-
-// ── FETCH LIVE DATA ──────────────────────────────────────────
-async function loadData() {
-  try {
-    const res = await fetch('/.netlify/functions/update');
-    const data = await res.json();
-    if (data.picks && data.picks.length > 0) {
-      MATCHES = data.picks;
-    }
-    if (data.cappers && data.cappers.length > 0) {
-      // load AI model picks into capper picks list
-      data.cappers.forEach(c => {
-        if (c.picks) {
-          c.picks.forEach(p => {
-            capperPicks.push({ id: cpId++, capper: c.name,
+  <div class="filters" id="filters">
+    <button class="filter-btn active" onclick="setFilter('All',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('ATP',this)">ATP</button>
+    <button class="filter-btn" onclick="setFilter('WTA',this)">WTA</button>
+    <button class="filter-btn" onclick="setFilter('Challenger',this)">Challenger</button>
+    <button class="filter-btn" onclick="setFilter('WTA
