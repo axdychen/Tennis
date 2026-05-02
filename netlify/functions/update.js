@@ -15,7 +15,11 @@ exports.handler = async (event) => {
   }
 
   const secret = event.headers["x-api-secret"];
-  const store = getStore("tennis-lab");
+  const store = getStore({
+    name: "tennis-lab",
+    siteID: process.env.NETLIFY_SITE_ID,
+    token: process.env.NETLIFY_TOKEN
+  });
 
   // GET — return current picks (public, no auth needed)
   if (event.httpMethod === "GET") {
